@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter.constants import *
-import os.path
+from tkinter import filedialog, messagebox
+import os
 
 _location = os.path.dirname(__file__)
 
@@ -13,6 +14,7 @@ class Toplevel1:
         top.title("Proyecto de Inteligencia Artificial")
         top.configure(background="#c4fffc")
         self.top = top
+        self.selected_file = None
 
         self.Label2 = tk.Label(self.top)
         self.Label2.place(relx=0.046, rely=0.077, height=95, width=313)
@@ -43,7 +45,7 @@ Camila Belen Quispe Flores''')
         self.Button1.place(relx=0.065, rely=0.295, height=26, width=247)
         self.Button1.configure(background="#edd3fe", activebackground="#52f5ff")
         self.Button1.configure(font="-family {Rustic Story} -size 9 -weight bold -slant italic")
-        self.Button1.configure(text='''Seleccionar archivo''')
+        self.Button1.configure(text='''Seleccionar archivo''', command= self.seleccionar_archivo)
 
         self.Label3 = tk.Label(self.top)
         self.Label3.place(relx=0.043, rely=0.393, height=60, width=235)
@@ -68,6 +70,21 @@ Duración:''')
         self.Label4.configure(text='''Resultado:                                   
 Género predicho:                 
 Agente reward:''')
+    def seleccionar_archivo(self):
+                file_path = filedialog.askopenfilename(
+                title="Seleccionar archivo WAV",
+                filetypes=[("Archivos WAV", "*.wav")]
+                )
+
+                if file_path:
+                        if not file_path.lower().endswith(".wav"):
+                                messagebox.showerror("Formato inválido", "Por favor, seleccione un archivo con extensión .wav")
+                                return
+
+                self.selected_file = file_path
+
+                file_name = os.path.basename(file_path)
+                self.Button1.configure(text=file_name)
 
 # Inicializacion de root.
 root = tk.Tk()
