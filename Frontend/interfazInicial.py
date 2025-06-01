@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter.constants import *
 from tkinter import filedialog, messagebox
 import os
+from CallBackend import enviar_archivo_wav
+
 
 _location = os.path.dirname(__file__)
 
@@ -48,28 +50,26 @@ Camila Belen Quispe Flores''')
         self.Button1.configure(text='''Seleccionar archivo''', command= self.seleccionar_archivo)
 
         self.Label3 = tk.Label(self.top)
-        self.Label3.place(relx=0.043, rely=0.393, height=60, width=235)
+        self.Label3.place(relx=0.043, rely=0.393, height=60, width=305)
         self.Label3.configure(background="#c4fffc")
         self.Label3.configure(font="-family {System} -size 10 -weight bold")
-        self.Label3.configure(text='''Características extraídas:              
-BPM:              
-Género real:              
-Duración:''')
+        self.Label3.configure(text='''Cargue su canción en formato WAV y
+luego pulse el botón de Clasificar canción
+para ver los resultados''')
 
         self.Button2 = tk.Button(self.top)
         self.Button2.place(relx=0.065, rely=0.53, height=26, width=117)
         self.Button2.configure(activebackground="#52f5ff")
         self.Button2.configure(background="#edd3fe")
         self.Button2.configure(font="-family {Rustic Story} -size 9 -weight bold -slant italic")
-        self.Button2.configure(text='''Clasificar Cancion''')
+        self.Button2.configure(text='''Clasificar Canción''', command=self.clasificar_cancion)
 
         self.Label4 = tk.Label(self.top)
-        self.Label4.place(relx=0.055, rely=0.589, height=72, width=224)
+        self.Label4.place(relx=0.049, rely=0.589, height=82, width=224)
         self.Label4.configure(background="#c4fffc")
-        self.Label4.configure(font="-family {System} -size 10 -weight bold")
-        self.Label4.configure(text='''Resultado:                                   
-Género predicho:                 
-Agente reward:''')
+        self.Label4.configure(font="-family {System} -size 11 -weight bold")
+        self.Label4.configure(text='''- - - Resultado: - - -''')
+
     def seleccionar_archivo(self):
                 file_path = filedialog.askopenfilename(
                 title="Seleccionar archivo WAV",
@@ -81,10 +81,39 @@ Agente reward:''')
                                 messagebox.showerror("Formato inválido", "Por favor, seleccione un archivo con extensión .wav")
                                 return
 
-                self.selected_file = file_path
+                        self.selected_file = file_path
 
-                file_name = os.path.basename(file_path)
-                self.Button1.configure(text=file_name)
+                        file_name = os.path.basename(file_path)
+                        self.Button1.configure(text=file_name)
+
+    def clasificar_cancion(self):
+        if not self.selected_file:
+                messagebox.showerror("Error", "Primero debe seleccionar un archivo .wav")
+                return
+
+        resultado = enviar_archivo_wav(self.selected_file)
+
+        if "error" in resultado:
+                messagebox.showerror("Error al clasificar", resultado["error"])
+                return
+
+        # Mostrar resultados en Label4
+        genero = resultado.get("genero_predicho", "Desconocido")
+
+        genero = resultado["genre"].capitalize()
+        tempo = resultado["features"]["tempo"]
+        energia = resultado["features"]["energy"]
+        centroid = resultado["features"]["centroid"]
+
+        self.Label4.configure(
+        text=f'''🎵 ¡Clasificación completa!
+🎧 Género predicho: {genero}
+🎚️ Ritmo (BPM): {tempo:.2f}
+⚡ Nivel de energía: {energia:.2f}
+🎼 Centroid (Timbre): {centroid:.2f}'''
+        )
+
+
 
 # Inicializacion de root.
 root = tk.Tk()
